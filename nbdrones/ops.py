@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 from shapely import ops
 import json
 from skimage import filters, measure, segmentation
-
+import requests
 
 # CONSTANTS
 buildings_sanfran = 'https://s3.amazonaws.com/gbdx-training/drones/buildings_soma_subset.geojson'
@@ -147,6 +147,17 @@ def segment_trees(img, n_segments=2000):
 
     return trees_array
 
+
+def from_geojson(source):
+    if source.startswith('http'):
+        response = requests.get(source)
+        geojson = json.loads(response.content)
+    else:
+        if os.path.exists(source):
+            with open(source, 'r') as f:
+                geojson = json.loads(f.read())
+        else:
+            raise ValueError("File does not exist: {}".format(source))
 
 
 def to_geojson(l):
