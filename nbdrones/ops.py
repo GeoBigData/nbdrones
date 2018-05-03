@@ -159,6 +159,8 @@ def from_geojson(source):
         else:
             raise ValueError("File does not exist: {}".format(source))
 
+    return geojson
+
 
 def to_geojson(l):
     g = {'crs'     : {u'properties': {u'name': u'urn:ogc:def:crs:OGC:1.3:CRS84'}, 'type': 'name'},
