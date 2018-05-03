@@ -1,4 +1,5 @@
 from shapely.geometry import shape
+from shapely import geometry
 from affine import Affine
 import os
 import rasterio
@@ -159,7 +160,14 @@ def from_geojson(source):
         else:
             raise ValueError("File does not exist: {}".format(source))
 
-    return geojson
+    geometries = []
+    feats = []
+    for f in geojson['features']:
+        geom = geometry.shape(f['geometry'])
+        feats.append({'geometry': geom, 'properties': {}})
+        geometries.append(geom)
+
+    return geometries, feats
 
 
 def to_geojson(l):
