@@ -1,5 +1,4 @@
 from __future__ import absolute_import
-from builtins import zip
 import jinja2
 import json
 import folium
@@ -248,9 +247,9 @@ def folium_map(geojson_to_overlay, layer_name, location, style_function=None, ti
 
 def add_popups(features, m):
     for feature in features:
-        lngs, lats = list(zip(*list(feature['geometry'].exterior.coords)))
-        locations = list(zip(lats, lngs))
-        df = pd.DataFrame(list(zip(*[(k, v) for k, v in feature['properties'].items()]))).transpose()
+        lngs, lats = zip(*list(feature['geometry'].exterior.coords))
+        locations = zip(lats, lngs)
+        df = pd.DataFrame(zip(*[(k, v) for k, v in feature['properties'].iteritems()])).transpose()
         df.columns = ['attribute', 'value']
         df.set_index('attribute', inplace=True)
         html = df.to_html(header=False, float_format='{:,.2f}'.format, border=False)
