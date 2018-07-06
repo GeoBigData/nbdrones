@@ -7,6 +7,7 @@ from matplotlib import pyplot as plt, colors
 import os
 from . import ops
 import pandas as pd
+import numpy as np
 
 
 # CONSTANTS
@@ -290,7 +291,9 @@ def to_geojson(l):
     return gj
 
 def np_serializer(i):
-    return np.asscalar(i)
+    if type(i).__module__ == np.__name__:
+        return np.asscalar(i)
+    raise TypeError(repr(i) + " is not JSON serializable")
 
 def get_map_style(map_center, buildings=None, trees=None):
     map_style = {
