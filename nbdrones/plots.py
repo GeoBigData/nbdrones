@@ -124,13 +124,13 @@ th, td {
   background-color: #f7f7f7;
 }
 .dataframe .dataframe-body tr {
-  overflow: hidden; 
+  overflow: hidden;
   border-bottom: 10px solid #fff;
   border-radius: 10px;
 }
-.dataframe .dataframe-body table { 
-  border-collapse: separate; 
-  border-spacing: 0 10px; 
+.dataframe .dataframe-body table {
+  border-collapse: separate;
+  border-spacing: 0 10px;
 }
 .dataframe .dataframe-body td {
     border: solid 1px transparent;
@@ -140,13 +140,13 @@ th, td {
 }
 .dataframe .dataframe-body td:first-child {
     border-left-style: solid;
-    border-top-left-radius: 10px; 
+    border-top-left-radius: 10px;
     border-bottom-left-radius: 10px;
 }
 .dataframe .dataframe-body td:last-child {
     border-right-style: solid;
-    border-bottom-right-radius: 10px; 
-    border-top-right-radius: 10px; 
+    border-bottom-right-radius: 10px;
+    border-top-right-radius: 10px;
 }
 .dataframe tr:hover td {
   background-color: #ebebeb;
@@ -279,6 +279,18 @@ def add_popups(features, m):
 
     return m
 
+def to_geojson(l):
+    g = {'crs': {u'properties': {u'name': u'urn:ogc:def:crs:OGC:1.3:CRS84'}, 'type': 'name'},
+         'features': [{'geometry': d['geometry'].__geo_interface__, 'properties': d['properties'], 'type': 'Feature'}
+                      for d in l],
+         'type': u'FeatureCollection'}
+
+    gj = json.dumps(g, default=np_serializer)
+
+    return gj
+
+def np_serializer(i):
+    return np.asscalar(i)
 
 def get_map_style(map_center, buildings=None, trees=None):
     map_style = {
@@ -305,7 +317,7 @@ def get_map_style(map_center, buildings=None, trees=None):
 
     if buildings is not None:
         map_style['sources']['buildings'] = {'type': 'geojson',
-                                             'data': json.loads(ops.to_geojson(buildings))}
+                                             'data': json.loads(to_geojson(buildings))}
         new_layers = [{
             'id'    : 'buildings_base',
             'source': 'buildings',
@@ -330,7 +342,7 @@ def get_map_style(map_center, buildings=None, trees=None):
 
     if trees is not None:
         map_style['sources']['trees'] = {'type': 'geojson',
-                                         'data': json.loads(ops.to_geojson(trees))}
+                                         'data': json.loads(to_geojson(trees))}
         new_layers = [{
             'id'    : 'trees',
             'source': 'trees',
