@@ -8,6 +8,7 @@ import os
 from . import ops
 import pandas as pd
 import numpy as np
+import sys 
 
 
 # CONSTANTS
@@ -280,13 +281,19 @@ def add_popups(features, m):
 
     return m
 
+
 def to_geojson(l):
     g = {'crs': {u'properties': {u'name': u'urn:ogc:def:crs:OGC:1.3:CRS84'}, 'type': 'name'},
          'features': [{'geometry': d['geometry'].__geo_interface__, 'properties': d['properties'], 'type': 'Feature'}
                       for d in l],
          'type': u'FeatureCollection'}
 
-    gj = json.dumps(g, default=np_serializer)
+    if sys.version_info[0] == 3:
+        serializer = np_serializer
+    else:
+        serializer = None
+
+    gj = json.dumps(g, default=serializer)
 
     return gj
 
