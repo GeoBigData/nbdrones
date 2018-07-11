@@ -13,6 +13,7 @@ from shapely import ops
 import json
 from skimage import filters, measure, segmentation
 import requests
+import sys
 
 # CONSTANTS
 buildings_sanfran = 'https://s3.amazonaws.com/gbdx-training/drones/buildings_soma_subset.geojson'
@@ -171,11 +172,16 @@ def from_geojson(source):
 
 
 def to_geojson(l):
-    g = {'crs'     : {u'properties': {u'name': u'urn:ogc:def:crs:OGC:1.3:CRS84'}, 'type': 'name'},
+    g = {'crs': {u'properties': {u'name': u'urn:ogc:def:crs:OGC:1.3:CRS84'}, 'type': 'name'},
          'features': [{'geometry': d['geometry'].__geo_interface__, 'properties': d['properties'], 'type': 'Feature'}
                       for d in l],
-         'type'    : u'FeatureCollection'}
+         'type': u'FeatureCollection'}
 
-    gj = json.dumps(g)
+    if sys.version_info[0] == 3:
+        serializer = np_serializer
+    else:
+        serializer = None
+
+    gj = json.dumps(g, default=serializer)
 
     return gj
