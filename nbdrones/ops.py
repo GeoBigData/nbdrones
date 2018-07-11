@@ -46,7 +46,7 @@ def calc_stats(poly, rast_reader, no_data=-9999):
     rast_subset = rast_reader.read(1, window=window)
 
     # use the original DSM affine to create a new affine transformation (for rasterizing the building footprint)
-    rast_transform = rast_reader.affine
+    rast_transform = rast_reader.transform
     shifted_affine = Affine(rast_transform.a,
                             rast_transform.b,
                             rast_transform.c + upper_left[1] * rast_transform.a,
