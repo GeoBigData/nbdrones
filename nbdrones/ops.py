@@ -132,7 +132,7 @@ def create_hillshade(array, cmap=plt.cm.pink, vert_exag=1, azdeg=315, altdeg=45)
 
 def segment_trees(img, n_segments=2000):
     # segment the image
-    rgb = img.base_layer_match(blm=True, access_token=os.environ.get('MAPBOX_API_KEY'))
+    rgb = img.rgb(blm=True)
     rgb_smooth = filters.gaussian(filters.gaussian(rgb, preserve_range=True, ), preserve_range=True)
     img_segmented = segmentation.slic(rgb_smooth, n_segments=n_segments, max_iter=100)
 
