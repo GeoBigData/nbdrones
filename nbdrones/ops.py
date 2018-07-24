@@ -133,7 +133,8 @@ def create_hillshade(array, cmap=plt.cm.pink, vert_exag=1, azdeg=315, altdeg=45)
 def segment_trees(img, n_segments=2000):
     # segment the image
     rgb = img.rgb(blm=True)
-    rgb_smooth = filters.gaussian(filters.gaussian(rgb, preserve_range=True, ), preserve_range=True)
+    rgb_smooth = filters.gaussian(filters.gaussian(rgb, preserve_range=True, multichannel=True),
+                                  preserve_range=True, multichannel=True)
     img_segmented = segmentation.slic(rgb_smooth, n_segments=n_segments, max_iter=100)
 
     # calculate ndvi
