@@ -259,7 +259,7 @@ def add_popups(features, m):
         html = TABLE_CSS + html.replace('<tbody>', '<tbody class="dataframe-body">').replace('<td>',
                                                                                              '<td class="column2">').replace(
             '<th>', '<td class="column1">').replace('</th>', '</td>')
-        popup = folium.map.Popup(html=html, max_width=500)
+        popup = folium.map.Popup(html=html, max_width=500, parse_html=True)
         popup._template = jinja2.Template(u"""
             var {{this.get_name()}} = L.popup({maxWidth: '{{this.max_width}}'});
             {% for name, element in this.html._children.items() %}
@@ -275,7 +275,7 @@ def add_popups(features, m):
             {% endfor %}
             """)
         marker = folium.features.RegularPolygonMarker(locations, color='white', weight=0, fill_color='white', fill_opacity=0,
-                                               popup=popup, parse_html=True)
+                                               popup=popup)
 
         marker.add_to(m)
 
