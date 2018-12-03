@@ -274,7 +274,7 @@ def add_popups(features, m):
                 {{element.render()}}
             {% endfor %}
             """)
-        marker = folium.features.PolygonMarker(locations, color='white', weight=0, fill_color='white', fill_opacity=0,
+        marker = folium.features.RegularPolygonMarker(locations, color='white', weight=0, fill_color='white', fill_opacity=0,
                                                popup=popup)
 
         marker.add_to(m)
