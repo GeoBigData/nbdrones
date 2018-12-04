@@ -8,7 +8,7 @@ import os
 from . import ops
 import pandas as pd
 import numpy as np
-import sys 
+import sys
 
 
 # CONSTANTS
@@ -259,7 +259,7 @@ def add_popups(features, m):
         html = TABLE_CSS + html.replace('<tbody>', '<tbody class="dataframe-body">').replace('<td>',
                                                                                              '<td class="column2">').replace(
             '<th>', '<td class="column1">').replace('</th>', '</td>')
-        popup = folium.map.Popup(html=html, max_width=500)
+        popup = folium.map.Popup(html=html, max_width=500, parse_html=True)
         popup._template = jinja2.Template(u"""
             var {{this.get_name()}} = L.popup({maxWidth: '{{this.max_width}}'});
             {% for name, element in this.html._children.items() %}
@@ -274,13 +274,70 @@ def add_popups(features, m):
                 {{element.render()}}
             {% endfor %}
             """)
-        marker = folium.features.PolygonMarker(locations, color='white', weight=0, fill_color='white', fill_opacity=0,
+        marker = folium.features.RegularPolygonMarker(locations, color='white', weight=0, fill_color='white', fill_opacity=0,
                                                popup=popup)
 
         marker.add_to(m)
-
     return m
 
+def folium_map_tooltips(geojson_to_overlay, layer_name, location, style_function=None, tiles='Stamen Terrain', zoom_start=16,
+               show_layer_control=True, width='100%', height='75%', attr=None, map_zoom=18, max_zoom=20, tms=False,
+               zoom_beyond_max=None, base_tiles='OpenStreetMap', opacity=1,
+               tooltip_props=None, tooltip_aliases=None):
+    m = folium.Map(location=location, zoom_start=zoom_start, width=width, height=height, max_zoom=map_zoom,
+                   tiles=base_tiles)
+    tiles = folium.TileLayer(tiles=tiles, attr=attr, name=attr, max_zoom=max_zoom,
+                             overlay=True, show=True)
+    if tms is True:
+        options = json.loads(tiles.options)
+        options.update({'tms': True})
+        tiles.options = json.dumps(options, sort_keys=True, indent=2)
+        tiles._template = jinja2.Template(u"""
+        {% macro script(this, kwargs) %}
+            var {{this.get_name()}} = L.tileLayer(
+                '{{this.tiles}}',
+                {{ this.options }}
+                ).addTo({{this._parent.get_name()}});
+        {% endmacro %}
+        """)
+    if zoom_beyond_max is not None:
+        options = json.loads(tiles.options)
+        options.update({'maxNativeZoom': zoom_beyond_max, 'maxZoom': max_zoom})
+        tiles.options = json.dumps(options, sort_keys=True, indent=2)
+        tiles._template = jinja2.Template(u"""
+        {% macro script(this, kwargs) %}
+            var {{this.get_name()}} = L.tileLayer(
+                '{{this.tiles}}',
+                {{ this.options }}
+                ).addTo({{this._parent.get_name()}});
+        {% endmacro %}
+        """)
+    if opacity < 1:
+        options = json.loads(tiles.options)
+        options.update({'opacity': opacity})
+        tiles.options = json.dumps(options, sort_keys=True, indent=2)
+        tiles._template = jinja2.Template(u"""
+        {% macro script(this, kwargs) %}
+            var {{this.get_name()}} = L.tileLayer(
+                '{{this.tiles}}',
+                {{ this.options }}
+                ).addTo({{this._parent.get_name()}});
+        {% endmacro %}
+        """)
+
+    tiles.add_to(m)
+    if style_function is not None:
+        gj = folium.GeoJson(geojson_to_overlay, overlay=True, name=layer_name, style_function=style_function)
+    else:
+        gj = folium.GeoJson(geojson_to_overlay, overlay=True, name=layer_name)
+    if tooltip_props is not None:
+        folium.features.GeoJsonTooltip(tooltip_props, aliases=tooltip_aliases).add_to(gj)
+    gj.add_to(m)
+
+    if show_layer_control is True:
+        folium.LayerControl().add_to(m)
+
+    return m
 
 def to_geojson(l):
     g = {'crs': {u'properties': {u'name': u'urn:ogc:def:crs:OGC:1.3:CRS84'}, 'type': 'name'},
